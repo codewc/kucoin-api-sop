@@ -26,7 +26,7 @@ The following are introduced separately according to the type of transaction
 - Read KuCoin [Margin](Margin.md) Guidelines.
 
 ## FAQ
-Here is a collection of [FAQ](FAQ.md) from API users.
+Here is a collection of [FAQ](https://github.com/codewc/kucoin-api-sop/discussions/categories/q-a) from API users.
 
 
 ## Community Channels
