@@ -51,4 +51,132 @@ Client libraries can help you integrate with our API quickly.
 CCXT is our authorized SDK provider and you may access the KuCoin API through CCXT. For more information, please
 visit: https://ccxt.trade.
 
-<h3 id="1-3">1-3.Place an order</h3>
+<h3 id="1-3">1-3 Place an order</h3>
+For detailed instructions on placing an order, see API documentation https://docs.kucoin.com/#place-a-new-order.
+
+Let's use the Python SDK to illustrate
+
+<h4 id="1-3-1">1-3-1 Place Order Limit</h3>
+
+```python
+from kucoin.client import Trade
+
+client = Trade(key='', secret='', passphrase='', is_sandbox=False)
+order = client.create_limit_order(symbol='KCS-USDT', side='buy', size='0.01', price='0.001')
+print(order)
+```
+
+There are some situations in this example, and the error indicates that the balance is insufficient
+
+```json
+{
+  "code": "200004",
+  "msg": "Balance insufficient!"
+}
+```
+
+Let's first check the available balance of the account
+
+<h4 id="1-3-2">1-3-2 Get a list of accounts</h3>
+
+```python
+from kucoin.client import User
+
+client = User(key='', secret='', passphrase='', is_sandbox=False)
+account_list = client.get_account_list(currency='USDT')
+print(account_list)
+```
+
+- Return data sample:
+
+```json
+{
+  "code": "200000",
+  "data": [
+    {
+      "id": "60ff67b62abb0f0006ebb409",
+      "currency": "USDT",
+      "type": "main",
+      "balance": "22.26577947",
+      "available": "22.26577947",
+      "holds": "0"
+    },
+    {
+      "id": "61113016724a380006d06bf3",
+      "currency": "USDT",
+      "type": "margin",
+      "balance": "0.6544733",
+      "available": "0.6544733",
+      "holds": "0"
+    },
+    {
+      "id": "61025f527da40f0006db6c0c",
+      "currency": "USDT",
+      "type": "trade",
+      "balance": "0.22227892",
+      "available": "0.00000087",
+      "holds": "0.22227804"
+    }
+  ]
+}
+```
+
+we see that ```"available": "0.00000087"``` in trade account available balance, so ```spendAmount = size * price = 0.01 * 0.001 = 0.00001```
+.
+
+It is understandable to prompt that the balance is insufficient.
+
+The amount that needs to be transferred to the trading account
+is ```amt = spendAmount - available = 0.00001 - 0.00000087 = 0.00000913```
+
+```python
+from kucoin.client import User
+
+client = User(key='', secret='', passphrase='', is_sandbox=False)
+account_list = client.inner_transfer(currency='USDT', from_payer='main', to_payee='trade', amount='0.00000913')
+print(account_list)
+```
+
+This endpoint [POST /api/v2/accounts/inner-transfer](#https://docs.kucoin.com/#inner-transfer) returns that our transfer was successful
+
+```json
+{
+  "code": "200000",
+  "data": {
+    "orderId": "619cfd8ba93ed20001e6016f"
+  }
+}
+```
+
+Let's use the endpoint [GET /api/v1/accounts](#https://docs.kucoin.com/#list-accounts) to check trade account balance
+```json
+{
+    "code": "200000",
+    "data": [
+        {
+            "id": "60ff67b62abb0f0006ebb409",
+            "currency": "USDT",
+            "type": "main",
+            "balance": "22.26577034",
+            "available": "22.26577034",
+            "holds": "0"
+        },
+        {
+            "id": "61113016724a380006d06bf3",
+            "currency": "USDT",
+            "type": "margin",
+            "balance": "0.6544733",
+            "available": "0.6544733",
+            "holds": "0"
+        },
+        {
+            "id": "61025f527da40f0006db6c0c",
+            "currency": "USDT",
+            "type": "trade",
+            "balance": "0.22228805",
+            "available": "0.00001",
+            "holds": "0.22227804"
+        }
+    ]
+}
+```
