@@ -16,7 +16,9 @@ the common business scenarios of KuCoin exchange while using the API.
 
 For professional traders, if you need to know more details and use advanced features, please refer to the official
 documents
-**`Documentation`** | ------------------- |
+
+**`Documentation`** |
+------------------- |
 [![Documentation](https://img.shields.io/badge/futures--api-reference-blue.svg)](https://docs.kucoin.center/futures/) |
 [![Documentation](https://img.shields.io/badge/spot--api-reference-blue.svg)](https://docs.kucoin.center/) |
 
