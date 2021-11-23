@@ -121,7 +121,8 @@ print(account_list)
 }
 ```
 
-we see that ```"available": "0.00000087"``` in trade account available balance, so ```spendAmount = size * price = 0.01 * 0.001 = 0.00001```
+we see that ```"available": "0.00000087"``` in trade account available balance,
+so ```spendAmount = size * price = 0.01 * 0.001 = 0.00001```
 .
 
 It is understandable to prompt that the balance is insufficient.
@@ -137,7 +138,8 @@ account_list = client.inner_transfer(currency='USDT', from_payer='main', to_paye
 print(account_list)
 ```
 
-This endpoint [POST /api/v2/accounts/inner-transfer](#https://docs.kucoin.com/#inner-transfer) returns that our transfer was successful
+This endpoint [POST /api/v2/accounts/inner-transfer](#https://docs.kucoin.com/#inner-transfer) returns that our transfer
+was successful
 
 ```json
 {
@@ -149,34 +151,44 @@ This endpoint [POST /api/v2/accounts/inner-transfer](#https://docs.kucoin.com/#i
 ```
 
 Let's use the endpoint [GET /api/v1/accounts](#https://docs.kucoin.com/#list-accounts) to check trade account balance
+
 ```json
 {
-    "code": "200000",
-    "data": [
-        {
-            "id": "60ff67b62abb0f0006ebb409",
-            "currency": "USDT",
-            "type": "main",
-            "balance": "22.26577034",
-            "available": "22.26577034",
-            "holds": "0"
-        },
-        {
-            "id": "61113016724a380006d06bf3",
-            "currency": "USDT",
-            "type": "margin",
-            "balance": "0.6544733",
-            "available": "0.6544733",
-            "holds": "0"
-        },
-        {
-            "id": "61025f527da40f0006db6c0c",
-            "currency": "USDT",
-            "type": "trade",
-            "balance": "0.22228805",
-            "available": "0.00001",
-            "holds": "0.22227804"
-        }
-    ]
+  "code": "200000",
+  "data": [
+    {
+      "id": "60ff67b62abb0f0006ebb409",
+      "currency": "USDT",
+      "type": "main",
+      "balance": "22.26577034",
+      "available": "22.26577034",
+      "holds": "0"
+    },
+    {
+      "id": "61113016724a380006d06bf3",
+      "currency": "USDT",
+      "type": "margin",
+      "balance": "0.6544733",
+      "available": "0.6544733",
+      "holds": "0"
+    },
+    {
+      "id": "61025f527da40f0006db6c0c",
+      "currency": "USDT",
+      "type": "trade",
+      "balance": "0.22228805",
+      "available": "0.00001",
+      "holds": "0.22227804"
+    }
+  ]
+}
+```
+
+According to the above example, try again and place an order
+
+```json
+{
+  "code": "200004",
+  "msg": "Balance insufficient!"
 }
 ```
