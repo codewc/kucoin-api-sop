@@ -134,8 +134,8 @@ is ```amt = spendAmount - available = 0.00001 - 0.00000087 = 0.00000913```
 from kucoin.client import User
 
 client = User(key='', secret='', passphrase='', is_sandbox=False)
-account_list = client.inner_transfer(currency='USDT', from_payer='main', to_payee='trade', amount='0.00000913')
-print(account_list)
+transfer_ret = client.inner_transfer(currency='USDT', from_payer='main', to_payee='trade', amount='0.00000913')
+print(transfer_ret)
 ```
 
 This endpoint [POST /api/v2/accounts/inner-transfer](#https://docs.kucoin.com/#inner-transfer) returns that our transfer
@@ -192,3 +192,130 @@ According to the above example, try again and place an order
   "msg": "Balance insufficient!"
 }
 ```
+
+When the order is placed above, it still prompts that the balance is insufficient, that is because we forgot to
+calculate the trade fee. Let's check our own trade fee
+
+<h4 id="1-3-3">1-3-3 Actual fee rate of the trading pair</h3>
+
+```python
+from kucoin.client import User
+
+client = User(key='', secret='', passphrase='', is_sandbox=False)
+ret = client.get_actual_fee(symbols='KCS-USDT')
+print(ret)
+```
+
+```json
+{
+  "code": "200000",
+  "data": [
+    {
+      "symbol": "KCS-USDT",
+      "takerFeeRate": "0.002",
+      "makerFeeRate": "0.002"
+    }
+  ]
+}
+```
+
+```python
+from kucoin.client import Market
+
+client = Market(key='', secret='', passphrase='', is_sandbox=False)
+ret = client.get_symbol_list()
+print(ret)
+```
+
+```json
+{
+  "code": "200000",
+  "data": [
+    ...
+    {
+      "symbol": "KCS-USDT",
+      "name": "KCS-USDT",
+      "baseCurrency": "KCS",
+      "quoteCurrency": "USDT",
+      "feeCurrency": "USDT",
+      "market": "USDS",
+      "baseMinSize": "0.01",
+      "quoteMinSize": "0.05",
+      "baseMaxSize": "10000000000",
+      "quoteMaxSize": "99999999",
+      "baseIncrement": "0.0001",
+      "quoteIncrement": "0.0001",
+      "priceIncrement": "0.001",
+      "priceLimitRate": "0.1",
+      "isMarginEnabled": true,
+      "enableTrading": true
+    },
+    ...
+  ]
+}
+```
+
+```actual_fee= takerFeeRate * spendAmount = 0.002 * 0.00001 = 0.00000002 ```
+
+```python
+from kucoin.client import User
+
+client = User(key='', secret='', passphrase='', is_sandbox=False)
+transfer_ret = client.inner_transfer(currency='USDT', from_payer='main', to_payee='trade', amount='0.00000002')
+
+account_list = client.get_account_list(currency='USDT')
+print(account_list)
+```
+
+```json
+{
+  "code": "200000",
+  "data": [
+    {
+      "id": "60ff67b62abb0f0006ebb409",
+      "currency": "USDT",
+      "type": "main",
+      "balance": "22.26577032",
+      "available": "22.26577032",
+      "holds": "0"
+    },
+    {
+      "id": "61113016724a380006d06bf3",
+      "currency": "USDT",
+      "type": "margin",
+      "balance": "0.6544733",
+      "available": "0.6544733",
+      "holds": "0"
+    },
+    {
+      "id": "61025f527da40f0006db6c0c",
+      "currency": "USDT",
+      "type": "trade",
+      "balance": "0.22228807",
+      "available": "0.00001002",
+      "holds": "0.22227804"
+    }
+  ]
+}
+```
+
+Let's place an order again.
+
+```python
+from kucoin.client import Trade
+
+client = Trade(key='', secret='', passphrase='', is_sandbox=False)
+order = client.create_limit_order(symbol='KCS-USDT', side='buy', size='0.01', price='0.001')
+print(order)
+```
+
+```json
+{
+  "code": "200000",
+  "data": {
+    "orderId": "619e52769419150001003840"
+  }
+}
+```
+
+So far we have successfully placed a limit order, but obviously we can’t make a deal.
